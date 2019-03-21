@@ -1,0 +1,17 @@
+version: '3.3'
+
+services:
+  db:
+    image: postgres:alpine
+    ports:
+      - "5431:5432"
+    volumes:
+      - flakes_db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: flakes_db_password
+      POSTGRES_DB: flakes
+
+volumes:
+  flakes_db: {}

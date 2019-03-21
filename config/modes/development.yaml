@@ -1,0 +1,11 @@
+postgres:
+  database: flakes
+  user: postgres
+  password: flakes_db_password
+  host: localhost
+  port: 5431
+  minsize: 1
+  maxsize: 5
+
+apps: [auth]
+DATABASE_URI: 'postgres+psycopg2://postgres:flakes_db_password@localhost:5431/flakes'
