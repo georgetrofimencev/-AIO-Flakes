@@ -32,10 +32,19 @@ class AbstractGetServiceHandler(AbstractServiceHandler):
 
 class AbstractPostServiceHandler(AbstractServiceHandler):
     """Abstract Service handler for handling POST Requests"""
-    def __init__(self, connection, args):
+    def __init__(self, connection, args, required_fields):
         super().__init__(connection)
         self.args = args
+        self._required_fields = required_fields
 
     @abstractmethod
-    async def post_result_handling(self):
+    async def post_request_handling(self):
         raise NotImplementedError
+
+    @property
+    async def _is_valid_request(self):
+        for _field in self._required_fields:
+            if _field not in self.args:
+                return False
+        return True
+

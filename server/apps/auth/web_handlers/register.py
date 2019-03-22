@@ -18,5 +18,5 @@ class RegisterWebHandler(web.View):
         async with self.request.app['db'].acquire() as conn:
             data = await self.request.json()
             register_service = RegisterServiceHandler(connection=conn, args=data)
-            result = await register_service.post_result_handling()
+            result = await register_service.post_request_handling()
             return result
