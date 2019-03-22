@@ -14,9 +14,11 @@ class RegisterServiceHandler(AbstractPostServiceHandler):
 
     async def post_request_handling(self):
         #  TODO: Завернуть в декоратор
+        #  Загромождает метод, тем более в каждом сервсином обработчике
+        #  Будет одно и то же действие(don't repeat yourself(DRY))
         if await self._is_valid_request:
             try:
-                result = await self._prepare_response()
+                result = await self._prepare_result()
                 http_response = FlakesHTTPResponse(
                     result=result,
                     message='Success user register'
@@ -36,6 +38,6 @@ class RegisterServiceHandler(AbstractPostServiceHandler):
             )
         return http_response.get_response()
 
-    async def _prepare_response(self):
+    async def _prepare_result(self):
         user_manager = UserManager(self.connection)
         return await user_manager.register_user(**self.args)

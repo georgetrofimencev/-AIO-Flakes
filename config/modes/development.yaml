@@ -9,4 +9,5 @@ postgres:
 
 apps: [auth]
 DATABASE_URI: 'postgres+psycopg2://postgres:flakes_db_password@localhost:5431/flakes'
-SECRET_FLAKES_KEY: "mgFADh.zJ-8QbTU!5Iqx3OsPZa_ltEeS"
+SECRET_FLAKES_KEY: "mgFADhzJ8QbTU5Iqx3OsPZaltEeS"
+MAX_EXPIRES_DAYS: 2

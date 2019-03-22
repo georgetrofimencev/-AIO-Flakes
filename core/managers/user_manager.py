@@ -55,9 +55,10 @@ class UserManager:
             dict with "message" field which contains
             "User is auth" if user login data correctly
         """
-        await self._check_login_data_validity(nickname, password)
+        user_id = await self._check_user_validity(nickname, password)
         result = {
-                "message": "User is auth"
+                "message": "User is auth",
+                "user_id": user_id
             }
         return result
 
@@ -76,14 +77,14 @@ class UserManager:
                 f'already registered')
         return True
 
-    async def _check_login_data_validity(self, nickname: str, password: str):
+    async def _check_user_validity(self, nickname: str, password: str):
         query = select([users]).\
             where(users.c.nickname == nickname)
         record = await self.connection.fetchrow(query)
         if record:
             password_hash = record.get('password_hash')
             if self._check_password_hash(password, password_hash):
-                return True
+                return record.get('id')
             else:
                 raise FlakesErrorException(
                     -1,

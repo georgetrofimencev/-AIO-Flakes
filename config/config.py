@@ -6,6 +6,7 @@ DEFAULT_MODE = BASE_DIR / 'modes' / 'development.yaml'
 
 
 def load_config(mode: str = None):
+    # TODO: Yaml Loader
     with open(DEFAULT_MODE.parent / f'{mode}.yaml' if mode else DEFAULT_MODE) as conf:
         config = yaml.load(conf)
     return config

@@ -1,23 +1,24 @@
 from aiohttp import web
 
 
-class FlakesHTTPResponse(web.Response):
+class FlakesHTTPResponse:
     """Flakes-app Response Object."""
     def __init__(self, result: dict, message: str,
-                 status=200, code: int = 0):
+                 status=200, code: int = 0,
+                 body=None):
         """
         :param result: result-object as a dict
         :param message: response message for client as a string
         :param status: HTTP Status Code(default 200-OK) as a int
         :param code: Backend code for Client as a int
         """
-        super().__init__(status=status)
+        self.status = status
+        self.body = body
         self.code = code
         self.result = result
         self.message = message
 
-    @property
-    def response(self):
+    def _get_body(self):
         return {
             "code": self.code,
             "data": self.result,
@@ -26,7 +27,9 @@ class FlakesHTTPResponse(web.Response):
 
     def get_response(self):
         """Returns aiohttp response instance"""
-        return web.json_response(data=self.response, status=self.status)
+        self.body = self._get_body()
+        return web.Response(body=self.body,
+                            status=self.status)
 
 
 class FlakesErrorException(Exception):

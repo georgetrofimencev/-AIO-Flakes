@@ -1,5 +1,6 @@
 from server.apps.main.abstract.service import AbstractPostServiceHandler
 from server.apps.main.abstract.result import FlakesErrorException, FlakesHTTPResponse
+from server.apps.main.session import session_manager
 from core.managers.user_manager import UserManager
 
 
@@ -14,12 +15,14 @@ class LoginServiceHandler(AbstractPostServiceHandler):
     async def post_request_handling(self):
         if await self._is_valid_request:
             try:
-                result = await self._prepare_response()
+                result = await self._prepare_result()
                 http_response = FlakesHTTPResponse(
                     result=result,
-                    message='Success user register'
+                    message='Success user authentication'
                 )
-                # http_response.set_cookie("")
+                user_id = result.get('user_id')
+                session_manager.set(user_id, http_response)
+                http_response.get_response()
             except FlakesErrorException as e:
                 http_response = FlakesHTTPResponse(
                     result={},
@@ -35,6 +38,6 @@ class LoginServiceHandler(AbstractPostServiceHandler):
             )
         return http_response.get_response()
 
-    async def _prepare_response(self):
+    async def _prepare_result(self):
         user_manager = UserManager(self.connection)
         return await user_manager.login_user(**self.args)

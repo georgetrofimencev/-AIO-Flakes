@@ -16,7 +16,7 @@ class AbstractServiceHandler(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def _prepare_response(self):
+    async def _prepare_result(self):
         raise NotImplementedError
 
 
