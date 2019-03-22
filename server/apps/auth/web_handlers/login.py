@@ -1,4 +1,6 @@
 from aiohttp import web
+
+from server.apps.main.session import session_manager
 from server.apps.auth.service_handlers.login import LoginServiceHandler
 
 
@@ -14,6 +16,13 @@ class LoginWebHandler(web.View):
         """
         async with self.request.app['db'].acquire() as conn:
             data = await self.request.json()
-            login_service = LoginServiceHandler(conn, args=data)
-            result = await login_service.post_request_handling()
-            return result
+            service = LoginServiceHandler(conn, args=data)
+            result = await service.post_request_handling()
+
+            response = web.json_response(data=result)
+
+            if result["code"] == 0:
+                return session_manager.set(response, result["user_id"])
+            else:
+                response.set_status(400)
+                return response
