@@ -3,7 +3,7 @@ from sqlalchemy.sql import select, insert, or_
 from core.db.models import users
 
 from config.settings import PASSWORD_SALT
-from server.apps.main.abstract.result import FlakesErrorException
+from server.apps.main.abstract.exceptions import FlakesErrorException
 
 
 class UserManager:

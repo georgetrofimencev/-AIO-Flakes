@@ -19,4 +19,9 @@ class RegisterWebHandler(web.View):
             data = await self.request.json()
             register_service = RegisterServiceHandler(connection=conn, args=data)
             result = await register_service.post_request_handling()
-            return result
+            response = web.json_response(data=result)
+            if result["code"] == 0:
+                return response
+            else:
+                response.set_status(400)
+                return response

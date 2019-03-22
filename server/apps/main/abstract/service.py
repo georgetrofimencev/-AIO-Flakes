@@ -10,6 +10,7 @@ class AbstractServiceHandler(ABC):
         :param connection:
         """
         self.connection = connection
+        self.result = None
 
     @abstractmethod
     async def _is_valid_request(self):
