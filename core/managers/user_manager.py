@@ -11,15 +11,6 @@ class UserManager:
     def __init__(self, connection):
         self.connection = connection
 
-    @staticmethod
-    def generate_password_hash(password):
-        """
-        Generate SHA256 hash for password.
-
-        :param password: password as a string.
-        """
-        return sha256((password + PASSWORD_SALT).encode("utf-8")).hexdigest()
-
     async def register_user(self, nickname: str, password: str, telegram_account=None,
                             tags: list = None, sources: list = None):
         """
@@ -35,9 +26,9 @@ class UserManager:
                 UserInfo: data which contains user info as object
                 }
         """
-        await self._check_data_validity(nickname, telegram_account)
+        await self._check_register_data_validity(nickname, telegram_account)
         password_hash = UserManager.\
-            generate_password_hash(password)
+            _generate_password_hash(password)
         query = insert(users).values(
             nickname=nickname,
             password_hash=password_hash,
@@ -55,12 +46,66 @@ class UserManager:
         }
         return result
 
-    async def _check_data_validity(self, nickname: str, telegram_account: str):
-        query = select([users]).where(or_(users.c.nickname == nickname,
-                                          users.c.telegram_account == telegram_account))
-        if await self.connection.fetchrow(query):
+    async def login_user(self, nickname: str, password: str, *args, **kwargs):
+        """
+        :param nickname: nickname as a string
+        :param password: password as a string
+
+        :return:
+            dict with "message" field which contains
+            "User is auth" if user login data correctly
+        """
+        user_id = await self._check_user_validity(nickname, password)
+        result = {
+                "message": "User is auth",
+                "user_id": user_id
+            }
+        return result
+
+    async def _check_register_data_validity(self, nickname: str, telegram_account: str):
+        query = select([users]).\
+            where(or_(
+                users.c.nickname == nickname,
+                users.c.telegram_account == telegram_account)
+        )
+        if await self.connection.fetch(query):
             raise FlakesErrorException(
                 -1,
-                error_message=f'User with nickname: {nickname} or '
-                f'telegram_account: {telegram_account} already registered')
+                error_message=f'User with '
+                f'nickname({nickname}) or '
+                f'telegram account({telegram_account}) '
+                f'already registered')
         return True
+
+    async def _check_user_validity(self, nickname: str, password: str):
+        query = select([users]).\
+            where(users.c.nickname == nickname)
+        record = await self.connection.fetchrow(query)
+        if record:
+            password_hash = record.get('password_hash')
+            if self._check_password_hash(password, password_hash):
+                return record.get('id')
+            else:
+                raise FlakesErrorException(
+                    -1,
+                    error_message=f'Incorrect password'
+                )
+
+        else:
+            raise FlakesErrorException(
+                -1,
+                error_message=f'User with nickname'
+                f'({nickname}) does not exist',
+            )
+
+    @staticmethod
+    def _generate_password_hash(password):
+        """
+        Generate SHA256 hash for password.
+
+        :param password: password as a string.
+        """
+        return sha256((password + PASSWORD_SALT).encode("utf-8")).hexdigest()
+
+    def _check_password_hash(self, password, password_hash):
+        return True if self._generate_password_hash(password) == password_hash else False

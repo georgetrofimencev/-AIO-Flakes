@@ -9,6 +9,7 @@
       <w>postgresql</w>
       <w>psql</w>
       <w>qfmq</w>
+      <w>sessionid</w>
       <w>tablename</w>
       <w>uvloop</w>
     </words>
